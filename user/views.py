@@ -3,6 +3,7 @@ from django.http.response import HttpResponse, HttpResponseRedirect
 from user.forms import UserForm
 from django.shortcuts import render
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 
 from .models import User
@@ -10,16 +11,14 @@ from .models import User
 # Create your views here.
 
 
+@login_required(login_url="/")
 def create_user(request):
-
     if request.method == "POST":
-        print("this is the post request")
         fm = UserForm(request.POST, request.FILES)
-        print(fm["image"])
         if fm.is_valid():
-            print("this the valid request")
             fm.save()
-            messages.success(request, "New user has been created")
+            print("the form is valid")
+            return HttpResponseRedirect("/user/userread")
         else:
             print("the form is not valid")
 
@@ -29,11 +28,13 @@ def create_user(request):
     return render(request, "useradd.html", {"forms": fm})
 
 
+@login_required(login_url="/")
 def viewUser(request):
     data = User.objects.all()
     return render(request, "userread.html", {"datas": data})
 
 
+@login_required(login_url="/")
 def delete_user(request, id):
     if request.method == "POST":
         data = User.objects.get(pk=id)
@@ -45,6 +46,7 @@ def delete_user(request, id):
     return HttpResponseRedirect("/user/userread")
 
 
+@login_required(login_url="/")
 def update_user(request, id):
     if request.method == "POST":
         data = User.objects.get(pk=id)

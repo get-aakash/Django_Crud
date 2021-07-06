@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponseRedirect
 from category.models import Category
 from category.forms import CategoryForms
@@ -5,6 +6,7 @@ from django.shortcuts import render
 from django.views.generic.base import TemplateView
 
 # Create your views here.
+@login_required(login_url="/")
 def add_category(request):
     if request.method == "POST":
         fm = CategoryForms(request.POST)
@@ -17,11 +19,13 @@ def add_category(request):
     return render(request, "categoryadd.html", {"forms": fm})
 
 
+@login_required(login_url="/")
 def show_category(request):
     data = Category.objects.all()
     return render(request, "categoryread.html", {"datas": data})
 
 
+@login_required(login_url="/")
 def delete_category(request, id):
     if request.method == "POST":
         data = Category.objects.get(pk=id)
@@ -29,6 +33,7 @@ def delete_category(request, id):
         return HttpResponseRedirect("/category/categoryread")
 
 
+@login_required(login_url="/")
 def update_category(request, id):
     if request.method == "POST":
         data = Category.objects.get(pk=id)
