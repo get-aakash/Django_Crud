@@ -1,3 +1,4 @@
+from login.models import UserProfile
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
@@ -83,3 +84,17 @@ class RegisterForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+
+
+class UserImageForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ["image"]
+
+        widgets = {
+            "image": forms.FileInput(
+                attrs={
+                    "class": "form-control-file",
+                }
+            ),
+        }

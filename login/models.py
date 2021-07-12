@@ -63,6 +63,9 @@ class User(AbstractBaseUser):
     def get_short_name(self):
         return self.email
 
+    def get_image(self):
+        return self.image
+
     def has_perm(self, perm, obj=None):
         return True
 
@@ -80,3 +83,13 @@ class User(AbstractBaseUser):
     @property
     def is_active(self):
         return self.active
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    image = models.ImageField(
+        null=True, blank=True, upload_to="pics/", default="pics/default.png"
+    )
+
+    def __str__(self):
+        return self.user.email

@@ -1,3 +1,4 @@
+from login.models import UserProfile
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.tokens import default_token_generator
@@ -25,7 +26,7 @@ from django.core.mail import EmailMessage
 from django.shortcuts import redirect, render
 
 
-from .forms import LoginForm, RegisterForm, User
+from .forms import LoginForm, RegisterForm, User, UserImageForm
 
 # Create your views here.
 
@@ -64,7 +65,7 @@ def login_user(request):
             email = fm.cleaned_data.get("email")
             password = fm.cleaned_data.get("password")
             user = authenticate(request, username=email, password=password)
-
+            print(user)
             if not user.is_email_verified:
                 messages.error(request, "Email is not verifed")
                 return HttpResponseRedirect("/")
@@ -74,7 +75,7 @@ def login_user(request):
                     request,
                     "Login successful",
                 )
-                return HttpResponseRedirect("user/userread")
+                return HttpResponseRedirect("dashboard")
     fm = LoginForm()
     return render(request, "login.html", {"form": fm})
 
@@ -99,7 +100,7 @@ class LoginView(FormView):
 
                 if user is not None:
                     login(request, user)
-                    return HttpResponseRedirect("user/userread")
+                    return HttpResponseRedirect("dashboard")
 
 
 def register(request):
@@ -186,3 +187,27 @@ def password_reset_request(request):
         template_name="password_reset.html",
         context={"password_reset_form": password_reset_form},
     )
+
+
+def show_dashboard(request):
+    try:
+        profile = request.user.userprofile
+
+    except UserProfile.DoesNotExist:
+        profile = UserProfile(user=request.user)
+        print(profile)
+
+    if request.method == "POST":
+        form = UserImageForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            data = form.save(commit=False)
+            data.user = request.user
+            data.save()
+
+            return HttpResponseRedirect("dashboard")
+        else:
+            messages.error(request, "Could not upload image, try again.")
+    else:
+        form = UserImageForm(instance=profile)
+
+        return render(request, "dashboard.html", {"form": form})
