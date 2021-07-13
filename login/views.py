@@ -56,7 +56,6 @@ def send_activation_email(user, request):
 
 def login_user(request):
     if request.user.is_authenticated:
-        print("authenticated")
         return HttpResponseRedirect("user/userread")
 
     if request.method == "POST":
@@ -65,7 +64,6 @@ def login_user(request):
             email = fm.cleaned_data.get("email")
             password = fm.cleaned_data.get("password")
             user = authenticate(request, username=email, password=password)
-            print(user)
             if not user.is_email_verified:
                 messages.error(request, "Email is not verifed")
                 return HttpResponseRedirect("/")
@@ -78,29 +76,6 @@ def login_user(request):
                 return HttpResponseRedirect("dashboard")
     fm = LoginForm()
     return render(request, "login.html", {"form": fm})
-
-
-class LoginView(FormView):
-    form_class = LoginForm
-    success_url = "/"
-    template_name = "login.html"
-
-    def form_valid(self, form):
-        request = self.request
-        current_user = request.user
-        print(current_user)
-        if request.user.is_authenticated:
-
-            return HttpResponseRedirect("user/userread")
-        else:
-            if form.is_valid():
-                email = form.cleaned_data.get("email")
-                password = form.cleaned_data.get("password")
-                user = authenticate(request, username=email, password=password)
-
-                if user is not None:
-                    login(request, user)
-                    return HttpResponseRedirect("dashboard")
 
 
 def register(request):
@@ -190,24 +165,23 @@ def password_reset_request(request):
 
 
 def show_dashboard(request):
-    try:
-        profile = request.user.userprofile
-
-    except UserProfile.DoesNotExist:
-        profile = UserProfile(user=request.user)
-        print(profile)
-
     if request.method == "POST":
-        form = UserImageForm(request.POST, request.FILES, instance=profile)
+        form = UserImageForm(request.POST, request.FILES)
         if form.is_valid():
-            data = form.save(commit=False)
-            data.user = request.user
-            data.save()
+            if UserProfile.objects.filter(user=request.user):
+                user_profile_obj = UserProfile.objects.get(user=request.user)
+                user_profile_obj.image = form.cleaned_data["image"]
+                user_profile_obj.save()
 
+            else:
+                data = form.save(commit=False)
+                data.user = request.user
+                data.save()
+            messages.success(request, "image uploaded!!")
             return HttpResponseRedirect("dashboard")
         else:
             messages.error(request, "Could not upload image, try again.")
     else:
-        form = UserImageForm(instance=profile)
+        form = UserImageForm()
 
         return render(request, "dashboard.html", {"form": form})

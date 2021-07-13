@@ -38,13 +38,6 @@ class UserForm(forms.ModelForm):
                     "placeholder": "Enter Your address here",
                 }
             ),
-            "image": forms.TextInput(
-                attrs={
-                    "class": "form-control",
-                    "style": "width:36ch",
-                    "placeholder": "Enter Your address here",
-                }
-            ),
         }
 
     def clean_email(self):

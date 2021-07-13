@@ -41,7 +41,7 @@ def delete_user(request, id):
         print(data)
         print("hello")
         data.delete()
-        messages.success(request, "New user has been created")
+        messages.error(request, "The user has been deleted")
 
     return HttpResponseRedirect("/user/userread")
 
