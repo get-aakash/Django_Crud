@@ -2,7 +2,7 @@
 name = "usercrud"
 version = "0.1.0"
 description = ""
-authors = ["Anupam1223 <anupam.siwakoti@gmail.com>"]
+authors = ["Aakash <mail.aakash108@gmail.com@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"

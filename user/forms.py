@@ -1,6 +1,7 @@
 from django.db.models.fields import CharField
 from .models import User
 from django import forms
+from django.forms import ValidationError
 
 
 class UserForm(forms.ModelForm):
@@ -41,10 +42,13 @@ class UserForm(forms.ModelForm):
         }
 
     def clean_email(self):
-        email = self.cleaned_data["email"]
-        print(email)
+        valemail = self.cleaned_data["email"]
+        if len(valemail) < 10:
+            raise forms.ValidationError("The length of email should be more than 10")
+        return valemail
 
-        if not email.endswith("@gmail.com"):
-            raise forms.ValidationError("Domain of email is not valid")
-        else:
-            return email
+    def clean_name(self):
+        valname = self.cleaned_data["name"]
+        if len(valname) < 4:
+            raise forms.ValidationError("The name is too small")
+        return valname

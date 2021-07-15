@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from login.models import UserProfile
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import PasswordResetForm
@@ -64,9 +65,14 @@ def login_user(request):
             email = fm.cleaned_data.get("email")
             password = fm.cleaned_data.get("password")
             user = authenticate(request, username=email, password=password)
-            if not user.is_email_verified:
-                messages.error(request, "Email is not verifed")
-                return HttpResponseRedirect("/")
+            try:
+                if not user.is_email_verified:
+                    messages.error(request, "Email is not verifed")
+                    return HttpResponseRedirect("/")
+            except Exception as e:
+                print(e)
+                messages.error(request, "The user is not registered!!!")
+
             if user is not None:
                 login(request, user)
                 messages.success(
@@ -164,6 +170,7 @@ def password_reset_request(request):
     )
 
 
+@login_required(login_url="/")
 def show_dashboard(request):
     if request.method == "POST":
         form = UserImageForm(request.POST, request.FILES)
